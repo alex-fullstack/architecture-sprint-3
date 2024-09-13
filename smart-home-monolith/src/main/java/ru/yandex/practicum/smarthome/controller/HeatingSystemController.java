@@ -1,6 +1,5 @@
 package ru.yandex.practicum.smarthome.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
 import ru.yandex.practicum.smarthome.dto.HeatingSystemDto;
 import ru.yandex.practicum.smarthome.service.HeatingSystemService;
 
@@ -63,6 +64,13 @@ public class HeatingSystemController {
     public ResponseEntity<Double> getCurrentTemperature(@PathVariable("id") Long id) {
         logger.info("Fetching current temperature for heating system with id {}", id);
         return ResponseEntity.ok(heatingSystemService.getCurrentTemperature(id));
+    }
+
+    @PostMapping("/sync")
+    public ResponseEntity<Void> sync() {
+        logger.info("Sync heating systems");
+        heatingSystemService.sync();
+        return ResponseEntity.noContent().build();
     }
 
 }

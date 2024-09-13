@@ -1,0 +1,314 @@
+asyncapi: 3.0.0
+info:
+  title: Smart Home Ecosystem Event API
+  version: 0.1.0
+
+servers:
+  localKafkaCluster:
+    host: localhost:9092
+    protocol: kafka
+
+operations:
+  sendDeviceCreatedEvent:
+    action: send
+    channel:
+      $ref: '#/channels/device-created'
+  receiveDeviceCreatedEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/device-created'
+  sendDeviceUpdatedEvent:
+    action: send
+    channel:
+      $ref: '#/channels/device-updated'
+  receiveDeviceUpdatedEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/device-updated'
+  sendDeviceStatusUpdatedEvent:
+    action: send
+    channel:
+      $ref: '#/channels/device-status-updated'
+  receiveDeviceStatusUpdatedEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/device-status-updated'
+  sendDeviceCommandExecutedEvent:
+    action: send
+    channel:
+      $ref: '#/channels/device-command-executed'
+  receiveDeviceCommandExecutedEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/device-command-executed'
+  sendSensorBulkCreatedEvent:
+    action: send
+    channel:
+      $ref: '#/channels/sensor-bulk-created'
+  receiveSensorBulkCreatedEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/sensor-bulk-created'
+  sendSensorBulkCreateFailedEvent:
+    action: send
+    channel:
+      $ref: '#/channels/sensor-bulk-create-failed'
+  receiveSensorBulkCreateFailedEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/sensor-bulk-create-failed'
+  sendSensorBulkUpdateFailedEvent:
+    action: send
+    channel:
+      $ref: '#/channels/sensor-bulk-update-failed'
+  receiveSensorBulkUpdateFailedEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/sensor-bulk-update-failed'
+  sendTemperatureUpdatedEvent:
+    action: send
+    channel:
+      $ref: '#/channels/temperature-updated'
+  receiveTemperatureUpdatedEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/temperature-updated'
+  sendSyncEvent:
+    action: send
+    channel:
+      $ref: '#/channels/monolith-sync'
+  receiveSyncEvent:
+    action: receive
+    channel:
+      $ref: '#/channels/monolith-sync'
+channels:
+  device-created:
+    description: Топик событий по добавлению нового устройства
+    address: device.created
+    messages:
+      deviceCreatedEvent:
+        $ref: '#/components/messages/deviceCreatedEvent'
+  device-updated:
+    description: Топик событий по изменению данных устройства
+    address: device.updated
+    messages:
+      deviceUpdatedEvent:
+        $ref: '#/components/messages/deviceUpdatedEvent'
+  device-status-updated:
+    description: Топик событий по изменению статуса устройства
+    address: device.status.updated
+    messages:
+      deviceStatusUpdatedEvent:
+        $ref: '#/components/messages/deviceStatusUpdatedEvent'
+  device-command-executed:
+    description: Топик событий по выполнению команды устройством
+    address: device.command.executed
+    messages:
+      deviceCommandExecutedEvent:
+        $ref: '#/components/messages/deviceCommandExecutedEvent'
+  sensor-bulk-created:
+    description: Топик событий по добавлению датчиков для устройства
+    address: sensor.bulk.created
+    messages:
+      sensorBulkCreatedEvent:
+        $ref: '#/components/messages/sensorBulkCreatedEvent'
+  sensor-bulk-create-failed:
+    description: Топик событий по ошибкам добавления датчиков для устройства
+    address: sensor.bulk.create.failed
+    messages:
+      sensorBulkCreateFailedEvent:
+        $ref: '#/components/messages/sensorBulkCreateFailedEvent'
+  sensor-bulk-update-failed:
+    description: Топик событий по ошибкам обновления данных датчиков для устройства
+    address: sensor.bulk.update.failed
+    messages:
+      sensorBulkUpdateFailedEvent:
+        $ref: '#/components/messages/sensorBulkUpdateFailedEvent'
+  temperature-updated:
+    description: Топик событий по обновлению данных температуры от датчиков
+    address: temperature.updated
+    messages:
+      temperatureUpdatedEvent:
+        $ref: '#/components/messages/temperatureUpdatedEvent'
+  monolith-sync:
+    description: Топик событий по синхронизации данных распределенной экоситсемы с монолитом
+    address: monolith.sync
+    messages:
+      monolithSyncEvent:
+        $ref: '#/components/messages/monolithSyncEvent'
+components:
+  messages:
+    deviceCreatedEvent:
+      name: deviceCreatedEvent
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DeviceCreatedEventPayload'
+    deviceUpdatedEvent:
+      name: deviceUpdatedEvent
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DeviceUpdatedEventPayload'
+    deviceStatusUpdatedEvent:
+      name: deviceStatusUpdatedEvent
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DeviceStatusUpdatedEventPayload'
+    deviceCommandExecutedEvent:
+      name: deviceCommandExecutedEvent
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/DeviceCommandExecutedEventPayload'
+    sensorBulkCreatedEvent:
+      name: sensorBulkCreatedEvent
+      contentType: application/json
+      payload:
+        type: string
+        format: number
+        description: device id
+    sensorBulkCreateFailedEvent:
+      name: sensorBulkCreateFailedEvent
+      contentType: application/json
+      payload:
+        type: string
+        format: number
+        description: device id
+    sensorBulkUpdateFailedEvent:
+      name: sensorBulkUpdateFailedEvent
+      contentType: application/json
+      payload:
+        type: string
+        format: number
+        description: device id
+    temperatureUpdatedEvent:
+      name: temperatureUpdatedEvent
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/TemperatureUpdatedEventPayload'
+    monolithSyncEvent:
+      name: monolithSyncEvent
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/MonolithSyncEventPayload'
+  schemas:
+    Device:
+      type: object
+      properties:
+        id:
+          type: integer
+        serialNumber:
+          type: integer
+        monolithId:
+          type: integer
+        type:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+        status:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+        house:
+          type: object
+          properties:
+            id:
+              type: integer
+            userId:
+              type: integer
+            address:
+              type: string
+            type:
+              type: object
+              properties:
+                id:
+                  type: integer
+                code:
+                  type: string
+    HeatingSystem:
+      type: object
+      properties:
+        id:
+          type: integer
+        targetTemperature:
+          type: integer
+        currentTemperature:
+          type: integer
+        on:
+          type: boolean
+    DeviceCreatedEventPayload:
+      type: object
+      properties:
+        device:
+          $ref: '#/components/schemas/Device'
+        sensors:
+          type: array
+          items:
+            type: object
+            properties: 
+              serialNumber:
+                type: integer
+              type:
+                type: string
+              unit:
+                type: string
+    DeviceUpdatedEventPayload:
+      type: object
+      properties:
+        device:
+          $ref: '#/components/schemas/Device'
+        sensors:
+          type: array
+          items:
+            type: object
+            properties: 
+              id:
+                type: integer
+              serialNumber:
+                type: integer
+    DeviceStatusUpdatedEventPayload:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        monolithId:
+          type: integer
+    DeviceCommandExecutedEventPayload:
+      type: object
+      properties: 
+        id:
+          type: integer
+        monolithId:
+          type: integer
+        command:
+          type: object
+          properties: 
+            code:
+              type: string
+            parameter:
+              type: object
+    TemperatureUpdatedEventPayload:
+      type: object
+      properties: 
+        sensorSerialNumber:
+          type: integer
+        value:
+          type: number
+          format: double
+        timestamp:
+          type: string
+          format: datetime
+    MonolithSyncEventPayload:
+      type: array
+      items:
+        $ref: '#/components/schemas/HeatingSystem'
+        
+
+
+
