@@ -1,6 +1,7 @@
+### Диаграмма компонент приложения Умный дом
+
 ```puml
 @startuml
-title Control Panel Component Diagram
 
 top to bottom direction
 

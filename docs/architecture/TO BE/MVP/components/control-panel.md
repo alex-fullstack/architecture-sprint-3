@@ -1,6 +1,7 @@
+### Диаграмма компонент приложения Панель управления
+
 ```puml
 @startuml
-title Control Panel Component Diagram
 
 top to bottom direction
 

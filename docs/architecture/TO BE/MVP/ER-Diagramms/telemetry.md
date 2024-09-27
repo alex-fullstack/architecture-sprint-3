@@ -1,6 +1,8 @@
 ```puml
 @startchen
 
+left to right direction
+
 entity SENSOR {
     SerialNumber: Integer
     DeviceId: Integer
@@ -18,10 +20,25 @@ entity TEMPERATURE_TELEMETRY {
     Timestamp: Datetime
 }
 
+entity LIGHTING_TELEMETRY {
+    IsOn: Boolean
+    Timestamp: Datetime
+}
+
+entity GATE_TELEMETRY {
+    Status: String
+    Timestamp: Datetime
+}
+
+entity MOVEMENT_TELEMETRY {
+    HasMoving: Boolean
+    Timestamp: Datetime
+}
+
 relationship HasType {
 }
 
-relationship TemperatureTelemetryOf {
+relationship TelemetryOf {
 }
 
 relationship HasUnit {
@@ -33,7 +50,16 @@ HasType -1- SENSOR_TYPE
 SENSOR -N- HasUnit
 HasUnit -1- UNIT
 
-SENSOR -1- TemperatureTelemetryOf
-TemperatureTelemetryOf -N- TEMPERATURE_TELEMETRY
+SENSOR -1- TelemetryOf
+TelemetryOf -N- TEMPERATURE_TELEMETRY
+
+SENSOR -1- TelemetryOf
+TelemetryOf -N- LIGHTING_TELEMETRY
+
+SENSOR -1- TelemetryOf
+TelemetryOf -N- GATE_TELEMETRY
+
+SENSOR -1- TelemetryOf
+TelemetryOf -N- MOVEMENT_TELEMETRY
 @endchen
 ``` 

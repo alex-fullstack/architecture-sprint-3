@@ -1,3 +1,5 @@
+### Диаграмма компонент приложения Телеметрия
+
 ```puml
 @startuml
 title Telemetry Component Diagram
