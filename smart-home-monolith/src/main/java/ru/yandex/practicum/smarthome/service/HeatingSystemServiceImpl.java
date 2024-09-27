@@ -1,15 +1,21 @@
 package ru.yandex.practicum.smarthome.service;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
 import ru.yandex.practicum.smarthome.dto.HeatingSystemDto;
 import ru.yandex.practicum.smarthome.entity.HeatingSystem;
+import ru.yandex.practicum.smarthome.event.SyncEvent;
+import ru.yandex.practicum.smarthome.publisher.KafkaPublisher;
 import ru.yandex.practicum.smarthome.repository.HeatingSystemRepository;
 
 @Service
 @RequiredArgsConstructor
 public class HeatingSystemServiceImpl implements HeatingSystemService {
     private final HeatingSystemRepository heatingSystemRepository;
+    private final KafkaPublisher kafkaPublisher;
     
     @Override
     public HeatingSystemDto getHeatingSystem(Long id) {
@@ -57,6 +63,23 @@ public class HeatingSystemServiceImpl implements HeatingSystemService {
         HeatingSystem heatingSystem = heatingSystemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("HeatingSystem not found"));
         return heatingSystem.getCurrentTemperature();
+    }
+
+    @Override
+    public void sync() {
+        List<HeatingSystem> heatingSystems = heatingSystemRepository.findAll();
+        var dtos = heatingSystems.stream().map(value -> {
+            var dto = new HeatingSystemDto();
+            dto.setId(value.getId());
+            dto.setOn(value.isOn());
+            dto.setTargetTemperature(value.getTargetTemperature());
+            dto.setCurrentTemperature(value.getCurrentTemperature());
+            return dto;
+        }).toList();
+        var event = new SyncEvent();
+        event.setHeatingSystemDtos(dtos);
+        kafkaPublisher.sendSyncEvent(event);
+
     }
 
     private HeatingSystemDto convertToDto(HeatingSystem heatingSystem) {

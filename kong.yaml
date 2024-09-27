@@ -1,0 +1,37 @@
+_format_version: "2.1"
+_transform: true
+services:
+  - name: monolith
+    url: http://monolith-app:8080
+    routes:
+      - name: monolith-service-route
+        methods:
+          - GET
+          - POST
+          - OPTIONS
+        paths:
+          - /smart-home
+  - name: control-panel
+    url: http://cp-app:8080
+    routes:
+      - name: control-panel-service-route
+        methods:
+          - GET
+          - POST
+          - PUT
+          - OPTIONS
+        paths:
+          - /control-panel
+  - name: telemetry
+    url: http://telemetry-app:8080
+    routes:
+      - name: telemetry-service-route
+        methods:
+          - GET
+        paths:
+          - /telemetry
+plugins:
+  - name: cors
+    config:
+      origins:
+        - 'http://localhost:8080'

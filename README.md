@@ -1,74 +1,50 @@
-# Базовая настройка
+#  Smart Home Ecosystem
 
-## Запуск minikube
+## Описание
+Проект "Smart Home Ecosystem" представляет собой распределенное приложение для умного дома.
 
-[Инструкция по установке](https://minikube.sigs.k8s.io/docs/start/)
+**Зависимости проекта:**
+- docker
+- postman
 
-```bash
-minikube start
+### Установка зависимостей
+- Инструкция по установке `docker` приведена на [оф. сайте](https://docs.docker.com/install/)
+- Инструкция по установке `postman` также приведена на [оф. сайте](https://www.postman.com/downloads/)
+
+
+### Инициализация проекта
+1. Создайте файл `.env` и заполните его значениями из `.env.example`.
+
+```shell script
+cp ./.env.example ./.env
+```
+2. Запустите проект:
+
+```shell script
+docker compose up --build -d
 ```
 
+3. Завершите работу всех контейнеров проекта:
 
-## Добавление токена авторизации GitHub
-
-[Получение токена](https://github.com/settings/tokens/new)
-
-```bash
-kubectl create secret docker-registry ghcr --docker-server=https://ghcr.io --docker-username=<github_username> --docker-password=<github_token> -n default
+```shell script
+docker-compose stop
 ```
 
+После успешного выполнения всех описанных выше команд вы должны получить полностью настроенное приложение.
 
-## Установка API GW kusk
 
-[Install Kusk CLI](https://docs.kusk.io/getting-started/install-kusk-cli)
+### Запуск проекта
+Запустить проект в уже настроенном ранее окружении можно командой:
 
-```bash
-kusk cluster install
+```shell script
+docker compose up -d
 ```
 
+### Запуск тестов
+Запуск тестов возможен только после запуска проекта. Для этого нужно запустить коллекцию тестов из папки tests в приложении postman
 
-## Настройка terraform
+### Документация
+Просмотр документации возможен также после запуска проекта по [адресу](http://127.0.0.1:8081)
 
-[Установите Terraform](https://yandex.cloud/ru/docs/tutorials/infrastructure-management/terraform-quickstart#install-terraform)
-
-
-Создайте файл ~/.terraformrc
-
-```hcl
-provider_installation {
-  network_mirror {
-    url = "https://terraform-mirror.yandexcloud.net/"
-    include = ["registry.terraform.io/*/*"]
-  }
-  direct {
-    exclude = ["registry.terraform.io/*/*"]
-  }
-}
-```
-
-## Применяем terraform конфигурацию 
-
-```bash
-cd terraform
-terraform apply
-```
-
-## Настройка API GW
-
-```bash
-kusk deploy -i api.yaml
-```
-
-## Проверяем работоспособность
-
-```bash
-kubectl port-forward svc/kusk-gateway-envoy-fleet -n kusk-system 8080:80
-curl localhost:8080/hello
-```
-
-
-## Delete minikube
-
-```bash
-minikube delete
-```
+### Swagger
+Просмотр спецификации REST АПИ возможен также после запуска проекта по [адресу](http://127.0.0.1:8080)

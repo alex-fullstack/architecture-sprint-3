@@ -1,0 +1,244 @@
+{
+	"info": {
+		"_postman_id": "2df3afc1-2514-4299-ae2a-38c1648af710",
+		"name": "Тесты MVP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9427559"
+	},
+	"item": [
+		{
+			"name": "Синхронизация с монолитом",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Запрос на синхронизацию должен возвращать статус 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/heating/sync",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"heating",
+						"sync"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение данных устройства, добавленного при синхронизации с монолитом",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"При запросе данных устройства должен возвращаться правильный ответ\", function () {",
+							"    pm.response.to.be.ok;",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.eql(1);",
+							"    pm.expect(jsonData.monolithId).to.eql(1);",
+							"    pm.expect(jsonData.type.code).to.eql(\"heating\");",
+							"    pm.expect(jsonData.status.code).to.eql(\"off\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"setTimeout(function(){}, 1000);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/api/device/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"device",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Обновление данных устройства, добавленного при синхронизации с монолитом",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"При обновлении данных устройства должен возвращаться правильный ответ\", function () {",
+							"    pm.response.to.be.ok;",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.id).to.eql(1);",
+							"    pm.expect(jsonData.monolithId).to.eql(1);",
+							"    pm.expect(jsonData.type.code).to.eql(\"heating\");",
+							"    pm.expect(jsonData.status.code).to.eql(\"off\");",
+							"    pm.expect(jsonData.house.id).to.eql(pm.environment.get('house_id'));",
+							"    pm.expect(jsonData.serialNumber).to.eql(pm.environment.get('serial_number'));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest(",
+							"    {",
+							"        method: \"POST\",",
+							"        url: \"localhost:8081/api/house/create\",",
+							"        header: {",
+							"            'Accept': 'application/json',",
+							"            'Content-Type': 'application/json'",
+							"        },",
+							"        body: {",
+							"            mode: 'raw',",
+							"            raw: {",
+							"                \"user\": 1,",
+							"                \"type\": 2",
+							"            }",
+							"        }",
+							"    }, function (err, response) {",
+							"        var jsonData = response.json();",
+							"        pm.environment.set('house_id', jsonData.id)",
+							"        pm.environment.set('serial_number', 12345)",
+							"        pm.environment.set('request_body', JSON.stringify(",
+							"            {",
+							"                house: jsonData.id,",
+							"                serialNumber: 12345,",
+							"                sensors: [{id: 1, serialNumber: 5}]",
+							"            }",
+							"        ));",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{request_body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/api/device/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"device",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение данных датчика, добавленного при синхронизации с монолитом",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"При запросе данных датчика должен возвращаться правильный ответ\", function () {",
+							"    pm.response.to.be.ok;",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"    var jsonData = pm.response.json();",
+							"    var sensorData = jsonData.sensor;",
+							"    pm.expect(sensorData.id).to.eql(1);",
+							"    pm.expect(sensorData.deviceId).to.eql(1);",
+							"    pm.expect(sensorData.type.code).to.eql(\"temperature\");",
+							"    pm.expect(sensorData.unit.code).to.eql(\"celsius\");",
+							"    pm.expect(sensorData.serialNumber).to.eql(5);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8082/api/sensor/1/telemetry",
+					"host": [
+						"localhost"
+					],
+					"port": "8082",
+					"path": [
+						"api",
+						"sensor",
+						"1",
+						"telemetry"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

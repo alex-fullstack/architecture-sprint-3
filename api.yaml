@@ -1,22 +1,387 @@
 openapi: 3.0.0
 info:
-  title: simple-api
+  title: Smart Home Ecosystem REST API
   version: 0.1.0
 
+servers:
+  - url: http://0.0.0.0:8000
+
 paths:
-  /hello:
+  /smart-home/api/heating/{id}:
     get:
+      description: "Получение данных системы отопления"
+      parameters:
+        - in: path
+          name: id  
+          required: true
+          schema:
+            type: string
       responses:
-        '200':
-          description: A simple hello world!
+        "200":
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-              example: Hello from a mocked response!
-      x-kusk:
-        upstream:
-          service:
-            name: hello-world-svc
-            namespace: default
-            port: 8080
+                $ref: "#/components/schemas/HeatingSystem"
+    put:
+      description: "Изменение данных системы отопления"
+      parameters:
+        - in: path
+          name: id
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                targetTemperature:
+                  type: integer
+                currentTemperature:
+                  type: integer
+                on:
+                  type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HeatingSystem"
+  /smart-home/api/heating/{id}/turn-on:
+    post:
+      description: "Включение системы отопления"
+      parameters:
+        - in: path
+          name: id
+          required: true
+      responses:
+        "204":
+          description: "No content"
+  /smart-home/api/heating/{id}/turn-off:
+    post:
+      description: "Выключение системы отопления"
+      parameters:
+        - in: path
+          name: id
+          required: true
+      responses:
+        "204":
+          description: "No content"
+  /smart-home/api/heating/{id}/set-temperature:
+    post:
+      description: "Установка уровня требуемой температуры"
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: number
+              format: double
+      responses:
+        "204":
+          description: "No content"
+  /smart-home/api/heating/{id}/current-temperature:
+    get:
+      description: "Получение текущего значения температуры"
+      parameters:
+        - in: path
+          name: id  
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+  /smart-home/api/heating/sync:
+    post:
+      description: "Запрос на синхронизацию данных монолитной системы умного дома с данными распределенной экоситсемы"
+      responses:
+        "204":
+          description: "No content"
+  /control-panel/api/house/create:
+    post:
+      description: "Запрос на создание записи с домом"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: integer
+                  required: true 
+                user:
+                  type: integer
+                  required: true 
+                address:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/House"
+  /control-panel/api/house/{id}:
+    get:
+      description: "Получение данных о доме"
+      parameters:
+        - in: path
+          name: id  
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/House"
+  /control-panel/api/device/create:
+    post:
+      description: "Запрос на добавление устройства для экосистемы дома пользователя"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: integer
+                  required: true 
+                house:
+                  type: integer
+                  required: true 
+                serialNumber:
+                  type: integer
+                  required: true
+                sensors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      serialNumber:
+                        type: integer
+                        required: true
+                      type:
+                        type: string
+                        required: true
+                      unit:
+                        type: string
+                        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+  /control-panel/api/device/{id}:
+      get:
+        description: "Получение данных об устройстве"
+        parameters:
+        - in: path
+          name: id  
+          required: true
+          schema:
+            type: integer
+        responses:
+          "200":
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Device"
+      put:
+        description: "Изменение данных устройства"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  house:
+                    type: integer
+                    required: true 
+                  serialNumber:
+                    type: integer
+                    required: true
+                  sensors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        serialNumber:
+                          type: integer
+                          required: true
+        responses:
+          "200":
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Device"
+                  
+  /control-panel/api/device/{id}/toggle:
+    put:
+      description: "Переключение режима работы - включено/выключено"
+      parameters:
+        - in: path
+          name: id  
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: "No content"
+  /control-panel/api/device/{id}/command:
+    post:
+      description: "Отправка команды устройству"
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  required: true
+                parameter:
+                  type: object
+                  required: true
+      responses:
+        "204":
+          description: "No content"
+  /telemetry/api/sensor/{id}/telemetry:
+    get:
+      description: "Получение данных телеметрии датчика"
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+          "200":
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    sensor:
+                      schema:
+                        $ref: "#/components/schemas/Sensor"
+                    history:
+                      type: array
+                      items:
+                        type: object
+
+components:
+  schemas:
+    HeatingSystem:
+      type: object
+      properties:
+        id:
+          type: integer
+        targetTemperature:
+          type: integer
+        currentTemperature:
+          type: integer
+        on:
+          type: boolean
+    House:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        address:
+          type: string
+        type:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+    Device:
+      type: object
+      properties:
+        id:
+          type: integer
+        serialNumber:
+          type: integer
+        monolithId:
+          type: integer
+        type:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+        status:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+        house:
+          type: object
+          properties:
+            id:
+              type: integer
+            userId:
+              type: integer
+            address:
+              type: string
+            type:
+              type: object
+              properties:
+                id:
+                  type: integer
+                code:
+                  type: string
+    Sensor:
+      type: object
+      properties:
+        id:
+          type: integer
+        serialNumber:
+          type: integer
+        deviceId:
+          type: integer
+        type:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
+        unit:
+          type: object
+          properties:
+            id:
+              type: integer
+            code:
+              type: string
